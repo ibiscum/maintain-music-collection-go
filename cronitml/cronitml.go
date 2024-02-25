@@ -1,28 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
-	"reflect"
 
-	"github.com/dhowden/itl"
+	"github.com/ibiscum/maintain-music-collection-go/internal/helper"
 	"github.com/joho/godotenv"
 )
-
-func preparetracks(tracks map[string]itl.Track) {
-
-	for _, v := range tracks {
-
-		track_id := v.TrackID
-		fmt.Println(reflect.TypeOf(track_id))
-
-		track_name := v.Name
-		fmt.Println(reflect.TypeOf(track_name))
-
-		fmt.Println(v.PersistentID)
-	}
-}
 
 func main() {
 	envFile := os.Args[1]
@@ -52,7 +36,13 @@ func main() {
 	}
 
 	log.Println("start")
-	tr := helper.loadTracks()
-	preparetracks(tr)
+	tr := helper.LoadTracks()
+
+	db, err := helper.ConnectDB(dbPath)
+	if err != nil {
+		log.Fatalf("error connecting DB: %s", err)
+	}
+
+	helper.InsertTracks(db, tr)
 	log.Println("stop")
 }

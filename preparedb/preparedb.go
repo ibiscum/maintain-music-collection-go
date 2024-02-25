@@ -1,51 +1,15 @@
 package main
 
 import (
-	"context"
 	"database/sql"
 	"log"
 	"os"
 
+	"github.com/ibiscum/maintain-music-collection-go/internal/helper"
 	"github.com/joho/godotenv"
-	_ "modernc.org/sqlite"
 )
 
 var db *sql.DB
-
-func initDatabase(dbPath string) error {
-	var err error
-	sql_c_t_itml := `CREATE TABLE IF NOT EXISTS t_itml (
-        persistent_id TEXT PRIMARY KEY,
-		track_id INTEGER,
-		track_name TEXT,
-		artist TEXT,
-		album_artist TEXT,
-		album TEXT,
-		genre TEXT,
-		disc_number INTEGER,
-        disc_count INTEGER,
-        track_number INTEGER,
-        track_count INTEGER,
-        album_year TEXT,
-        date_modified TEXT,
-        date_added TEXT,
-        volume_adjustment INTEGER,
-        play_count INTEGER,
-        play_date_utc TEXT,
-        artwork_count INTEGER,
-        md5_id TEXT);`
-
-	db, err = sql.Open("sqlite", dbPath)
-	if err != nil {
-		return err
-	}
-
-	_, err = db.ExecContext(context.Background(), sql_c_t_itml)
-	if err != nil {
-		return err
-	}
-	return nil
-}
 
 // func addAlbum(a *Album) (int64, error) {
 // 	result, err := db.ExecContext(
@@ -122,9 +86,14 @@ func main() {
 		log.Fatal("specify the ITML_DB_PATH environment variable")
 	}
 
-	err = initDatabase(dbPath)
+	db, err = helper.ConnectDB(dbPath)
 	if err != nil {
-		log.Fatal("error initializing DB connection: ", err)
+		log.Fatal("error connecting to DB: ", err)
+	}
+
+	err = helper.InitDB(db, dbPath)
+	if err != nil {
+		log.Fatal("error initializing DB: ", err)
 	}
 
 	err = db.Ping()
