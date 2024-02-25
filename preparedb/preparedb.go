@@ -7,25 +7,14 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 )
-
-type Album struct {
-	Title  string
-	Artist string
-	Price  float32
-}
-
-type AlbumDbRow struct {
-	ID int
-	Album
-}
 
 var db *sql.DB
 
 func initDatabase(dbPath string) error {
 	var err error
-	sql_c_t_itml := `CREATE TABLE IF NOT EXISTS itunes_data (
+	sql_c_t_itml := `CREATE TABLE IF NOT EXISTS t_itml (
         persistent_id TEXT PRIMARY KEY,
 		track_id INTEGER,
 		track_name TEXT,
@@ -46,7 +35,7 @@ func initDatabase(dbPath string) error {
         artwork_count INTEGER,
         md5_id TEXT);`
 
-	db, err = sql.Open("sqlite3", dbPath)
+	db, err = sql.Open("sqlite", dbPath)
 	if err != nil {
 		return err
 	}
@@ -107,15 +96,30 @@ func initDatabase(dbPath string) error {
 // }
 
 func main() {
+	envFile := os.Args[1]
+	logFileName := "preparedb.log"
 
-	err := godotenv.Load("../.env")
+	// open log file
+	logFile, err := os.OpenFile(logFileName, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
 	if err != nil {
-		log.Fatalf("error loading .env file: %s", err)
+		log.Panic(err)
+	}
+	defer logFile.Close()
+
+	// set log out put
+	log.SetOutput(logFile)
+
+	// optional: log date-time, filename, and line number
+	log.SetFlags(log.Lshortfile | log.LstdFlags)
+
+	err = godotenv.Load(envFile)
+	if err != nil {
+		log.Fatalf("error loading environment file: %s", err)
 	}
 
 	dbPath := os.Getenv("ITML_DB_PATH")
 	if len(dbPath) == 0 {
-		log.Fatal("specify the SQLITE_DB_PATH environment variable")
+		log.Fatal("specify the ITML_DB_PATH environment variable")
 	}
 
 	err = initDatabase(dbPath)
@@ -128,7 +132,7 @@ func main() {
 		log.Fatal("error initializing DB connection: ping error: ", err)
 	}
 
-	log.Println("database initialized..")
+	log.Println("database initialized.")
 
 	// err = insertTestData()
 	// if err != nil {

@@ -1,5 +1,5 @@
--- itunes_data definition PostgreSQL
-CREATE TABLE itunes_data (
+-- t_itml definition PostgreSQL
+CREATE TABLE t_itml (
 	persistent_id varchar(100) PRIMARY KEY,
 	track_id integer,
 	track_name text,
@@ -70,7 +70,6 @@ CREATE TABLE itunes_data_log (
 SELECT EXISTS (SELECT 1 from itunes_data_tmp idt);
 DELETE FROM itunes_data_tmp;
 DELETE FROM itunes_data;
-
 
 -- TRIGGERS (3)
 -- (1) UPDATES itunes_data if insertion in itunes_data_tmp shows changes
@@ -176,7 +175,6 @@ BEGIN
     FROM itunes_data
     WHERE persistent_id = OLD.persistent_id;
 END;
-
 
 -- -------------------------
 -- POSTGRES SPECIFIC LOGGING

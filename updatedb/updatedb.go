@@ -1,18 +1,12 @@
-import plistlib
-import re
-import psycopg2
-from psycopg2 import Error
 import datetime
 import hashlib
 # import pprint
 from settings import ITUNES_LIBRARY_FILE, ITUNES_MUSIC_DIR, \
     DB_PASSWORD, DB_SCHEMA, DB_HOST
 
-
 def subst_quote(input):
     tmp = re.sub(r"'", "''", input)
     return tmp
-
 
 def connect_db():
     try:
@@ -25,36 +19,6 @@ def connect_db():
         return conn
     except (Exception, Error) as error:
         print(error)
-
-
-table_itunes_data = 'CREATE TABLE IF NOT EXISTS itunes_data (\
-        persistent_id varchar(100) PRIMARY KEY, \
-        track_id integer,           \
-        track_name text,            \
-        artist text,                \
-        album_artist text,          \
-        album text,                 \
-        genre varchar(100),         \
-        disc_number smallint,       \
-        disc_count smallint,        \
-        track_number smallint,      \
-        track_count smallint,       \
-        album_year date,            \
-        date_modified timestamp,    \
-        date_added timestamp,       \
-        volume_adjustment smallint, \
-        play_count integer,         \
-        play_date_utc timestamp,    \
-        artwork_count smallint,     \
-        md5_id varchar(100));'
-
-
-def create_table(command):
-    conn = connect_db()
-    cur = conn.cursor()
-    cur.execute(command)
-    conn.commit()
-    conn.close()
 
 def prepare_tracks():
     tracks_db = list()
