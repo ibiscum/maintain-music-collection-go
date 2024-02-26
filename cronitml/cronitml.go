@@ -43,6 +43,10 @@ func main() {
 		log.Fatalf("error connecting DB: %s", err)
 	}
 
-	helper.InsertTracks(db, tr)
+	err = helper.InsertTracks(db, tr)
+	if err != nil {
+		log.Fatalf("error connecting DB: %s", err)
+	}
+
 	log.Println("stop")
 }

@@ -8,7 +8,6 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"unsafe"
 
 	"github.com/dhowden/itl"
 	_ "modernc.org/sqlite"
@@ -42,7 +41,7 @@ func LoadTracks() map[string]itl.Track {
 func InsertTracks(db *sql.DB, tracks map[string]itl.Track) error {
 	var err error
 
-	sql_i_t_itml := `INSERT INTO itunes_data (
+	sql_i_t_itml := `INSERT INTO t_itml (
         persistent_id,
         track_id,
         track_name,
@@ -63,7 +62,7 @@ func InsertTracks(db *sql.DB, tracks map[string]itl.Track) error {
         md5_id
     ) VALUES (
         ?, ?, ?, ?, ?, ?, ?, ?, ?,
-        ?, ?, ?, ?, ?, ?, ?, ?, ?
+        ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
     ) ON CONFLICT (persistent_id) DO UPDATE SET
         track_id          = EXCLUDED.track_id,
         track_name        = EXCLUDED.track_name,
@@ -90,22 +89,30 @@ func InsertTracks(db *sql.DB, tracks map[string]itl.Track) error {
 	}
 
 	for _, v := range tracks {
-		v_size := int(unsafe.Sizeof(itl.Track{}))
-		fmt.Println(v_size, ":", &v)
+
 		md5_id := "abc"
 		// track_id_b := []byte(strconv.Itoa(v.TrackID))
 		// track_name := []byte(v.Name)
 
 		// md5_in := []byte(v.TrackID)
-		stmt.Exec(v.TrackID, v.Name, v.Artist, v.AlbumArtist, v.Album, v.Genre, v.DiscNumber, v.DiscCount,
+		_, err = stmt.Exec(v.PersistentID, v.TrackID, v.Name, v.Artist, v.AlbumArtist, v.Album, v.Genre, v.DiscNumber, v.DiscCount,
 			v.TrackNumber, v.TrackCount, v.Year, v.DateModified, v.DateAdded, v.VolumeAdjustment, v.PlayCount,
 			v.PlayDateUTC, v.ArtworkCount, md5_id)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
 
 func ConnectDB(dbPath string) (*sql.DB, error) {
 	db, err := sql.Open("sqlite", dbPath)
+	if err != nil {
+		return nil, err
+	}
+
+	// Close connection
+	defer db.Close()
 	if err != nil {
 		return nil, err
 	}
