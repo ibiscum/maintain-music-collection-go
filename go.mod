@@ -5,7 +5,7 @@ go 1.25.0
 require (
 	github.com/dhowden/itl v0.0.0-20170329215456-9fbe21093131
 	github.com/joho/godotenv v1.5.1
-	modernc.org/sqlite v1.54.0
+	modernc.org/sqlite v1.55.0
 )
 
 require (
